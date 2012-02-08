@@ -100,6 +100,7 @@ task :compile => [:global_version, :build] do
 	outt = File.join(props[:output], "Transports")
 
 	copyOutputFiles File.join(props[:src], "Transports/MassTransit.Transports.MSMQ/bin/#{BUILD_CONFIG}"), "MassTransit.Transports.MSMQ.{dll,pdb,xml}", File.join(outt, "MSMQ")
+	copyOutputFiles File.join(props[:src], "Transports/MassTransit.Distributor.Grouping/bin/#{BUILD_CONFIG}"), "MassTransit.Distributor.Grouping.{dll,pdb,xml}", File.join(outt, "MSMQ")
 	copyOutputFiles File.join(props[:src], "Transports/MassTransit.Transports.RabbitMq/bin/#{BUILD_CONFIG}"), "MassTransit.Transports.RabbitMq.{dll,pdb,xml}", File.join(outt, "RabbitMQ")
 	copyOutputFiles File.join(props[:src], "Transports/MassTransit.Transports.RabbitMq/bin/#{BUILD_CONFIG}"), "RabbitMQ*.{dll,pdb,xml}", File.join(outt, "RabbitMQ")
 end

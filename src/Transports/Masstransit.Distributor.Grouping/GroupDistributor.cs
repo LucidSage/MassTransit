@@ -19,6 +19,7 @@ namespace MassTransit.Distributor.Grouping
 	using Magnum.Extensions;
 	using MassTransit.Distributor.Grouping.Messages;
 	using MassTransit.Pipeline;
+	using MassTransit.Pipeline.Sinks;
 
 	class GroupDistributor<TMessage> :
 		IBusService, IDisposable, IPipelineSink<ISendContext>
@@ -30,6 +31,7 @@ namespace MassTransit.Distributor.Grouping
 
 		UnsubscribeAction _unsubscribeAction = () => false;
 		IServiceBus _bus;
+		IPipelineSink<ISendContext> _defaultSink;
 
 		public GroupDistributor(IWorkerSelectionStrategy<TMessage> workerSelectionStrategy)
 		{
@@ -48,7 +50,7 @@ namespace MassTransit.Distributor.Grouping
 
 		public bool Inspect(IPipelineInspector inspector)
 		{
-			return inspector.Inspect(this);
+			return inspector.Inspect(_defaultSink);
 		}
 
 		void Send(TMessage message)
@@ -74,8 +76,12 @@ namespace MassTransit.Distributor.Grouping
 			worker.Add();
 
 			IEndpoint endpoint = _bus.GetEndpoint(worker.DataUri);
-			
-			endpoint.Send(message);
+
+			endpoint.Send(message, context =>
+				{
+					//context.SetNetwork()
+					context.SendResponseTo(_bus);
+				});
 		}
 
 		public void Start(IServiceBus bus)
@@ -84,10 +90,13 @@ namespace MassTransit.Distributor.Grouping
 
 			_unsubscribeAction = bus.SubscribeHandler<GroupWorkerAvailable<TMessage>>(Consume);
 
+			//var router = new MessageRouter<TMessage>();
+			//router.Sinks.Add(this);
+
 			// HACK: I don't like relying on this cast, but it is the only way to accomplish
 			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
 			// to do this 'officially' in the future.
-			((OutboundMessagePipeline)bus.OutboundPipeline).ReplaceOutputSink(this);
+			_defaultSink = ((OutboundMessagePipeline)bus.OutboundPipeline).ReplaceOutputSink(this);
 		}
 		
 		public void Stop()

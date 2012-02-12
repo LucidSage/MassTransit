@@ -44,7 +44,7 @@ namespace MassTransit.Distributor.Grouping
 			{
 				IBusPublishContext<TMessage> msgContext;
 				if (ctx.TryGetContext<TMessage>(out msgContext))
-					Send(msgContext.Message);
+					Send(msgContext);
 			};
 		}
 
@@ -53,19 +53,23 @@ namespace MassTransit.Distributor.Grouping
 			return inspector.Inspect(_defaultSink);
 		}
 
-		void Send(TMessage message)
+		void Send(IBusPublishContext<TMessage> context)
 		{
 			List<GroupWorkerDetails> recipients;
 			lock (_workers)
 			{
 				// Use ToList to force Linq to evaluate the expression while _workers is locked
-				recipients = _workers.Values.GroupBy(wd => wd.Group).Select(workers => (GroupWorkerDetails)_selectionStrategy.SelectWorker(workers.Cast<WorkerDetails>(), message)).ToList();
+                recipients = _workers
+                    .Values
+                    .GroupBy(wd => wd.Group)
+                    .Select(workers => (GroupWorkerDetails)_selectionStrategy.SelectWorker(workers.Cast<WorkerDetails>(), context.Message))
+                    .ToList();
 			}
 
-			recipients.Each(wd => SendMessageToWorker(message, wd));
+            recipients.Each(wd => SendMessageToWorker(context, wd));
 		}
 
-		void SendMessageToWorker(TMessage message, GroupWorkerDetails worker)
+        void SendMessageToWorker(IBusPublishContext<TMessage> pubContext, GroupWorkerDetails worker)
 		{
 			if (worker == null)
 			{
@@ -77,11 +81,12 @@ namespace MassTransit.Distributor.Grouping
 
 			IEndpoint endpoint = _bus.GetEndpoint(worker.DataUri);
 
-			endpoint.Send(message, context =>
-				{
-					//context.SetNetwork()
-					context.SendResponseTo(_bus);
-				});
+            endpoint.Send(pubContext.Message, context =>
+                {
+                    context.SetNetwork(pubContext.Network);
+                    context.SetRequestId(pubContext.RequestId);
+                    context.SendResponseTo(pubContext.ResponseAddress);
+                });
 		}
 
 		public void Start(IServiceBus bus)
@@ -89,10 +94,7 @@ namespace MassTransit.Distributor.Grouping
 			_bus = bus;
 
 			_unsubscribeAction = bus.SubscribeHandler<GroupWorkerAvailable<TMessage>>(Consume);
-
-			//var router = new MessageRouter<TMessage>();
-			//router.Sinks.Add(this);
-
+            
 			// HACK: I don't like relying on this cast, but it is the only way to accomplish
 			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
 			// to do this 'officially' in the future.

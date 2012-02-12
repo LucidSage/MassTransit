@@ -20,10 +20,11 @@ namespace MassTransit.Distributor.Grouping.Tests
 	using MassTransit.Tests.Messages;
 	using NUnit.Framework;
 	using TestFramework;
+    using MassTransit.Transports.Msmq.Tests.TestFixtures;
 
-	[TestFixture, Integration]
+    [TestFixture, Integration]
 	public class Group_distributor_with_control_bus_should_work :
-		GroupingTestFixture
+        MulticastMsmqEndpointTestFixture
 	{
 		private PingMessage _ping;
 		private FutureMessage<PingMessage, Guid> _future;

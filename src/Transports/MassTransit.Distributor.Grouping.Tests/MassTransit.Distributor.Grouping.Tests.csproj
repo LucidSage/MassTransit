@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Magnum">
@@ -53,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Group_distributor_spec.cs" />
-    <Compile Include="GroupingTestFixture.cs" />
     <Compile Include="Group_distributor_with_control_bus_should_work.cs" />
     <Compile Include="Group_distributor_with_network_set_should_work.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

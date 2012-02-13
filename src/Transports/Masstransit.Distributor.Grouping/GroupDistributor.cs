@@ -59,17 +59,17 @@ namespace MassTransit.Distributor.Grouping
 			lock (_workers)
 			{
 				// Use ToList to force Linq to evaluate the expression while _workers is locked
-                recipients = _workers
-                    .Values
-                    .GroupBy(wd => wd.Group)
-                    .Select(workers => (GroupWorkerDetails)_selectionStrategy.SelectWorker(workers.Cast<WorkerDetails>(), context.Message))
-                    .ToList();
+				recipients = _workers
+					.Values
+					.GroupBy(wd => wd.Group)
+					.Select(workers => (GroupWorkerDetails)_selectionStrategy.SelectWorker(workers.Cast<WorkerDetails>(), context.Message))
+					.ToList();
 			}
 
-            recipients.Each(wd => SendMessageToWorker(context, wd));
+			recipients.Each(wd => SendMessageToWorker(context, wd));
 		}
 
-        void SendMessageToWorker(IBusPublishContext<TMessage> pubContext, GroupWorkerDetails worker)
+		void SendMessageToWorker(IBusPublishContext<TMessage> pubContext, GroupWorkerDetails worker)
 		{
 			if (worker == null)
 			{
@@ -81,12 +81,12 @@ namespace MassTransit.Distributor.Grouping
 
 			IEndpoint endpoint = _bus.GetEndpoint(worker.DataUri);
 
-            endpoint.Send(pubContext.Message, context =>
-                {
-                    context.SetNetwork(pubContext.Network);
-                    context.SetRequestId(pubContext.RequestId);
-                    context.SendResponseTo(pubContext.ResponseAddress);
-                });
+			endpoint.Send(pubContext.Message, context =>
+				{
+					context.SetNetwork(pubContext.Network);
+					context.SetRequestId(pubContext.RequestId);
+					context.SendResponseTo(pubContext.ResponseAddress);
+				});
 		}
 
 		public void Start(IServiceBus bus)
@@ -94,7 +94,7 @@ namespace MassTransit.Distributor.Grouping
 			_bus = bus;
 
 			_unsubscribeAction = bus.SubscribeHandler<GroupWorkerAvailable<TMessage>>(Consume);
-            
+			
 			// HACK: I don't like relying on this cast, but it is the only way to accomplish
 			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
 			// to do this 'officially' in the future.

@@ -19,11 +19,11 @@ namespace MassTransit.Distributor.Grouping
 	/// <summary>
 	/// DTO to hold information about subsribers that are participating in a group
 	/// </summary>
-    public class GroupWorkerDetails : WorkerDetails
+	public class GroupWorkerDetails : WorkerDetails
 	{
 		/// <summary>
 		/// The group that this worker will participate in
 		/// </summary>
-        public string Group { get; set; }
+		public string Group { get; set; }
 	}
 }

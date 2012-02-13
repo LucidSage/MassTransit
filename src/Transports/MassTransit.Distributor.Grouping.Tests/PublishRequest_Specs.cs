@@ -21,12 +21,12 @@ namespace MassTransit.Distributor.Grouping.Tests
 	using MassTransit.Tests;
 	using MassTransit.BusConfigurators;
 	using MassTransit.Distributor.Grouping.Messages;
-    using MassTransit.Context;
-    using MassTransit.Transports.Msmq.Tests.TestFixtures;
+	using MassTransit.Context;
+	using MassTransit.Transports.Msmq.Tests.TestFixtures;
 
 	[TestFixture]
 	public class Publishing_a_simple_request :
-        MulticastMsmqEndpointTestFixture
+		MulticastMsmqEndpointTestFixture
 	{
 		class PingMessage
 		{
@@ -36,23 +36,23 @@ namespace MassTransit.Distributor.Grouping.Tests
 		class PongMessage
 		{
 			public Guid TransactionId { get; set; }
-        }
+		}
 
-        protected override void ConfigureLocalBus(ServiceBusConfigurator configurator)
-        {
-            base.ConfigureLocalBus(configurator);
+		protected override void ConfigureLocalBus(ServiceBusConfigurator configurator)
+		{
+			base.ConfigureLocalBus(configurator);
 
-            configurator.UseGroupDistributorFor<PingMessage>();
-        }
+			configurator.UseGroupDistributorFor<PingMessage>();
+		}
 
-        protected override void ConfigureRemoteBus(ServiceBusConfigurator configurator)
-        {
-            base.ConfigureRemoteBus(configurator);
+		protected override void ConfigureRemoteBus(ServiceBusConfigurator configurator)
+		{
+			base.ConfigureRemoteBus(configurator);
 
-            configurator.UseGroupWorker<PingMessage>();
-        }
+			configurator.UseGroupWorker<PingMessage>();
+		}
 
-        
+		
 		[Test]
 		public void Should_support_SendRequest()
 		{
@@ -109,7 +109,7 @@ namespace MassTransit.Distributor.Grouping.Tests
 			//LocalBus.ShouldHaveSubscriptionFor<PingMessage>();
 			
 			workerAvailableReceived.IsAvailable(timeout).ShouldBeTrue("The worker did not join the group!");
-            
+			
 			LocalBus.PublishRequest(ping, callback =>
 				{
 					callback.Handle<PongMessage>(response =>

@@ -12,13 +12,14 @@
     <AssemblyName>MassTansit.Distributor.Grouping.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <BuildConfigKey Condition=" '$(BuildConfigKey)' == '' ">NET40</BuildConfigKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;$(BuildConfigKey)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
@@ -27,16 +28,22 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;$(BuildConfigKey)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Magnum">
+    <Reference Include="Magnum" Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
+      <HintPath>..\..\..\lib\Magnum\net-3.5\Magnum.dll</HintPath>
+    </Reference>
+    <Reference Include="Magnum" Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
       <HintPath>..\..\..\lib\Magnum\net-4.0\Magnum.dll</HintPath>
     </Reference>
-    <Reference Include="Magnum.TestFramework">
+    <Reference Include="Magnum.TestFramework" Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
+      <HintPath>..\..\..\lib\Magnum\net-3.5\TestFramework\Magnum.TestFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Magnum.TestFramework" Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
       <HintPath>..\..\..\lib\Magnum\net-4.0\TestFramework\Magnum.TestFramework.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
@@ -46,7 +53,9 @@
       <HintPath>..\..\..\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

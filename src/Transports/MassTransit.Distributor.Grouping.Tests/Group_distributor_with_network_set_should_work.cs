@@ -40,7 +40,7 @@ namespace MassTransit.Distributor.Grouping.Tests
 
 			_unsubscribe = RemoteBus.SubscribeInstance(_future);
 
-			//LocalBus.ShouldHaveRemoteSubscriptionFor<PingMessage>();
+			LocalBus.ShouldHaveRemoteSubscriptionFor<PingMessage>();
 
 			Trace.WriteLine("LocalBus");
 

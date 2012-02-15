@@ -12,19 +12,16 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.Distributor.Grouping.Tests
 {
-	using System;
-	using Exceptions;
-	using Magnum.Extensions;
-	using Magnum.TestFramework;
-	using NUnit.Framework;
-	using MassTransit.Tests.TextFixtures;
-	using MassTransit.Tests;
-	using MassTransit.BusConfigurators;
-	using MassTransit.Distributor.Grouping.Messages;
-    using MassTransit.Context;
+    using System;
+    using Magnum.Extensions;
+    using Magnum.TestFramework;
+    using MassTransit.BusConfigurators;
+    using MassTransit.Distributor.Grouping.Messages;
+    using MassTransit.Tests;
     using MassTransit.Transports.Msmq.Tests.TestFixtures;
+    using NUnit.Framework;
 
-	[TestFixture]
+    [TestFixture]
 	public class Publishing_a_simple_request :
         MulticastMsmqEndpointTestFixture
 	{

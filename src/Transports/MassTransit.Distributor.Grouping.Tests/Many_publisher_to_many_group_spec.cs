@@ -18,24 +18,25 @@ namespace MassTransit.Distributor.Grouping.Tests
     using NUnit.Framework;
 
     [TestFixture, Category("Integration")]
-	public class Group_distributor_spec :
+	public class Many_publisher_to_many_group_spec :
         GroupingTestFixtureWith2GroupsOf3
-    {
-		[Test]
-		public void Every_group_should_share_the_load()
+    {        
+        [Test]
+        public void Many_publishers_should_not_duplicate_messages()
         {
             const int messageCount = 10;
 
             for (int i = 0; i < messageCount; ++i)
             {
                 LocalBus.Publish(new PingMessage());
+                RemoteBus.Publish(new PingMessage());
             }
 
             ThreadUtil.Sleep(2.Seconds());
 
-            Assert.AreEqual(messageCount, group_one_response_count);
-            Assert.AreEqual(messageCount, group_two_response_count);
-            Assert.AreEqual(messageCount*2, total_response_count);
-		}
+            Assert.AreEqual(messageCount * 2, group_one_response_count);
+            Assert.AreEqual(messageCount * 2, group_two_response_count);
+            Assert.AreEqual(messageCount * 2 * 2, total_response_count);
+        }
 	}
 }

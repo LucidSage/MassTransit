@@ -26,16 +26,16 @@ namespace MassTransit.Distributor.Grouping.Tests
         {
             const int messageCount = 10;
 
-            for (int i = 0; i < messageCount; ++i)
-            {
-                LocalBus.Publish(new PingMessage());
-            }
+			for (int i = 0; i < messageCount; ++i)
+			{
+				LocalBus.Publish(new PingMessage());
+			}
 
-            ThreadUtil.Sleep(2.Seconds());
+			ThreadUtil.Sleep(2.Seconds());
 
-            Assert.AreEqual(messageCount, group_one_response_count);
-            Assert.AreEqual(messageCount, group_two_response_count);
-            Assert.AreEqual(messageCount*2, total_response_count);
+			Assert.AreEqual(messageCount, group_one_response_count);
+			Assert.AreEqual(messageCount, group_two_response_count);
+			Assert.AreEqual(messageCount*2, total_response_count);
 		}
 	}
 }

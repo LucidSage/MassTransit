@@ -14,6 +14,7 @@ namespace MassTransit.Transports.Msmq.Configuration
 {
 	public interface MulticastSubscriptionClientConfigurator
 	{
-		void SetMulticastAddress(string uriString);
+        void SetMulticastAddress(string uriString);
+        void SetGroup(string group);
 	}
 }

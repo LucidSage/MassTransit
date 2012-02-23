@@ -24,6 +24,7 @@ namespace MassTransit.Subscriptions.Coordinator
         readonly IEndpoint _endpoint;
         readonly Uri _endpointUri;
         readonly string _network;
+        readonly string _group;
 
         readonly Guid _peerId;
         readonly Uri _peerUri;
@@ -35,7 +36,7 @@ namespace MassTransit.Subscriptions.Coordinator
             get { return _timestamp; }
         }
 
-        public BusSubscriptionMessageProducer(SubscriptionRouter router, IEndpoint endpoint, Uri endpointUri)
+        public BusSubscriptionMessageProducer(SubscriptionRouter router, IEndpoint endpoint, Uri endpointUri, string group)
         {
             _peerId = router.PeerId;
             _peerUri = router.PeerUri;
@@ -43,6 +44,7 @@ namespace MassTransit.Subscriptions.Coordinator
             _endpoint = endpoint;
             _endpointUri = endpointUri;
             _timestamp = DateTime.UtcNow.Ticks;
+            _group = group;
 
             SendAddPeerMessage();
         }
@@ -104,6 +106,7 @@ namespace MassTransit.Subscriptions.Coordinator
                     PeerId = _peerId,
                     PeerUri = _peerUri,
                     Timestamp = _timestamp,
+                    Group = _group
                 }, context =>
                     {
                         SetSendContext(context);

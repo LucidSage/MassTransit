@@ -18,7 +18,7 @@ namespace Publisher
 				sbc.VerifyMsmqConfiguration();
 				sbc.SetNetwork("mt_group_demo");
 				sbc.UseMulticastSubscriptionClient();
-				sbc.UseGroupDistributorFor<YourMessage>();
+				//sbc.UseGroupDistributorFor<YourMessage>();
 
 				sbc.ReceiveFrom("msmq://localhost/mt_group_events_pub");
 			}))

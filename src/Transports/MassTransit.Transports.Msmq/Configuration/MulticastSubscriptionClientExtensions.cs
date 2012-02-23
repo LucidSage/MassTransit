@@ -13,8 +13,9 @@
 namespace MassTransit
 {
 	using System;
-	using BusConfigurators;
-	using Transports.Msmq.Configuration;
+    using BusConfigurators;
+    using Transports.Msmq;
+    using Transports.Msmq.Configuration;
 
 	public static class MulticastSubscriptionClientExtensions
 	{
@@ -31,6 +32,8 @@ namespace MassTransit
 			configureCallback(clientConfigurator);
 
 			configurator.AddSubscriptionObserver(clientConfigurator.Create);
+
+            configurator.AddService(BusServiceLayer.Presentation, () => new GroupMessageRouter(clientConfigurator));
 		}
 	}
 }

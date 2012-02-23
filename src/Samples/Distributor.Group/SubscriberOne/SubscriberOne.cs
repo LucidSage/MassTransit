@@ -17,8 +17,11 @@ namespace SubscriberOne
 				sbc.UseMsmq();
 				sbc.VerifyMsmqConfiguration();
 				sbc.SetNetwork("mt_group_demo");
-				sbc.UseMulticastSubscriptionClient();
-				sbc.UseGroupWorker<YourMessage>("one");
+                sbc.UseMulticastSubscriptionClient(config =>
+                    {
+                        config.SetGroup("one");
+                    });
+				//sbc.UseGroupWorker<YourMessage>("one");
 
 				sbc.ReceiveFrom("msmq://localhost/mt_group_events_sub_one");
 

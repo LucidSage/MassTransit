@@ -35,14 +35,16 @@ namespace MassTransit.Transports.Msmq
         readonly SubscriptionRouter _router;
         IServiceBus _subscriptionBus;
         UnsubscribeAction _unsubscribeAction;
+        string _group;
 
-        public MulticastSubscriptionClient(IServiceBus subscriptionBus, SubscriptionRouter router)
+        public MulticastSubscriptionClient(IServiceBus subscriptionBus, SubscriptionRouter router, string group)
         {
             _subscriptionBus = subscriptionBus;
             _router = router;
             _network = router.Network;
             _peerId = router.PeerId;
             _peerUri = router.PeerUri;
+            _group = group;
 
             if (_log.IsDebugEnabled)
                 _log.DebugFormat("Starting MulticastSubscriptionService using {0}", subscriptionBus.Endpoint.Address);
@@ -54,7 +56,7 @@ namespace MassTransit.Transports.Msmq
                 throw new EndpointException(subscriptionBus.Endpoint.Address.Uri,
                     "The multicast subscription client must be used on a multicast MSMQ endpoint");
 
-            _producer = new BusSubscriptionMessageProducer(router, subscriptionBus.Endpoint, msmqAddress.InboundUri);
+            _producer = new BusSubscriptionMessageProducer(router, subscriptionBus.Endpoint, msmqAddress.InboundUri, group);
 
             _unsubscribeAction = _subscriptionBus.SubscribeInstance(consumerInstance);
             _unsubscribeAction += _subscriptionBus.SubscribeInstance(this);
@@ -87,6 +89,7 @@ namespace MassTransit.Transports.Msmq
                     PeerId = _peerId,
                     PeerUri = _peerUri,
                     Timestamp = _producer.Timestamp,
+                    Group = _group
                 };
 
             clientEndpoint.Send(addPeer, sendContext =>

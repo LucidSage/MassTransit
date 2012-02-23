@@ -25,6 +25,10 @@ namespace MassTransit.Transports.Msmq.Configuration
 		MulticastSubscriptionClientConfigurator
 	{
 		IPEndPoint _multicastAddress;
+        string _group;
+        IControlBus _subscriptionBus;
+
+        public IControlBus SubscriptionBus { get { return _subscriptionBus; } }
 
 		public MulticastSubscriptionClientConfiguratorImpl()
 		{
@@ -47,6 +51,11 @@ namespace MassTransit.Transports.Msmq.Configuration
 			}
 		}
 
+        public void SetGroup(string group)
+        {
+            _group = group;
+        }
+
 		public SubscriptionObserver Create(IServiceBus bus, SubscriptionRouter router)
 		{
 			string path = bus.ControlBus.Endpoint.Address.Uri.AbsolutePath;
@@ -65,9 +74,9 @@ namespace MassTransit.Transports.Msmq.Configuration
 					AutoStart = true,
 				});
 
-			IControlBus subscriptionBus = builder.Build();
+            _subscriptionBus = builder.Build();
 
-			var service = new MulticastSubscriptionClient(subscriptionBus, router);
+            var service = new MulticastSubscriptionClient(_subscriptionBus, router, _group);
 
 			return service;
 		}

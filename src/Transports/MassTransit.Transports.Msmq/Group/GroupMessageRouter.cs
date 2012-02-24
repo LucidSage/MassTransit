@@ -99,13 +99,9 @@ namespace MassTransit.Transports.Msmq.Group
 		{
 			_bus = bus;
 
-			//_unsubscribeAction = bus.SubscribeHandler<GroupWorkerAvailable<TMessage>>(Consume);
             _unsubscribeAction = _subscriptionBus.SubscribeInstance(this);
 			
-			// HACK: I don't like relying on this cast, but it is the only way to accomplish
-			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
-			// to do this 'officially' in the future.
-			_defaultSink = ((OutboundMessagePipeline)bus.OutboundPipeline).ReplaceOutputSink(this);
+			_defaultSink = bus.OutboundPipeline.ReplaceOutputSink(this);
 		}
 		
 		public void Stop()

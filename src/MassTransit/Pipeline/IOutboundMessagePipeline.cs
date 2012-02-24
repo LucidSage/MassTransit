@@ -20,5 +20,6 @@ namespace MassTransit.Pipeline
 	{
 		void Configure(Action<IOutboundPipelineConfigurator> configurePipeline);
 		TResult Configure<TResult>(Func<IOutboundPipelineConfigurator, TResult> configurePipeline);
+        IPipelineSink<ISendContext> ReplaceOutputSink(IPipelineSink<ISendContext> sink);
 	}
 }

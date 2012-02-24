@@ -10,7 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Transports.Msmq
+namespace MassTransit.Transports.Msmq.Group
 {
 	using System;
 	using System.Collections.Generic;
@@ -37,10 +37,14 @@ namespace MassTransit.Transports.Msmq
 		IServiceBus _bus;
         IPipelineSink<ISendContext> _defaultSink;
         IControlBus _subscriptionBus;
+        IGroupSelectionStrategy _selectionStrategy;
 
-        public GroupMessageRouter(MulticastSubscriptionClientConfiguratorImpl configurator)
+        public GroupMessageRouter(
+            MulticastSubscriptionClientConfiguratorImpl configurator,
+            IGroupSelectionStrategy selectionStrategy)
         {
             _subscriptionBus = configurator.SubscriptionBus;
+            _selectionStrategy = selectionStrategy;
 		}
 
 		public IEnumerable<Action<ISendContext>> Enumerate(ISendContext context)
@@ -54,7 +58,7 @@ namespace MassTransit.Transports.Msmq
                     recipients = _workers
                         .Values
                         .GroupBy(wd => wd.Group)
-                        .Select(workers => workers.Cast<Peer>().FirstOrDefault())
+                        .Select(workers => _selectionStrategy.Select(workers))
                         .ToList();
                 }
                 

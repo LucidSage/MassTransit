@@ -20,6 +20,7 @@ namespace MassTransit.Transports.Msmq.Configuration
 	using Magnum.Extensions;
 	using Subscriptions.Coordinator;
 	using Util;
+    using MassTransit.Transports.Msmq.Group;
 
 	public class MulticastSubscriptionClientConfiguratorImpl :
 		MulticastSubscriptionClientConfigurator
@@ -30,9 +31,12 @@ namespace MassTransit.Transports.Msmq.Configuration
 
         public IControlBus SubscriptionBus { get { return _subscriptionBus; } }
 
+        public IGroupSelectionStrategy GroupSelectionStrategy { get; private set; }
+
 		public MulticastSubscriptionClientConfiguratorImpl()
 		{
 			_multicastAddress = new IPEndPoint(IPAddress.Parse("235.109.116.115"), 7784);
+            GroupSelectionStrategy = new RoundRobinSelectionStrategy();
 		}
 
 		public void SetMulticastAddress(string uriString)
@@ -56,6 +60,11 @@ namespace MassTransit.Transports.Msmq.Configuration
             _group = group;
         }
 
+        public void SetGroupSelectionStrategy(IGroupSelectionStrategy selectionStrategy)
+        {
+            GroupSelectionStrategy = selectionStrategy;
+        }
+
 		public SubscriptionObserver Create(IServiceBus bus, SubscriptionRouter router)
 		{
 			string path = bus.ControlBus.Endpoint.Address.Uri.AbsolutePath;
@@ -76,7 +85,7 @@ namespace MassTransit.Transports.Msmq.Configuration
 
             _subscriptionBus = builder.Build();
 
-            var service = new MulticastSubscriptionClient(_subscriptionBus, router, _group);
+            var service = new MulticastSubscriptionClient(_subscriptionBus, router, _group ?? router.PeerId.ToString());
 
 			return service;
 		}

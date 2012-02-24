@@ -87,7 +87,9 @@
     <Compile Include="Configuration\MulticastSubscriptionClientConfigurator.cs" />
     <Compile Include="Configuration\MulticastSubscriptionClientConfiguratorImpl.cs" />
     <Compile Include="Configuration\MulticastSubscriptionClientExtensions.cs" />
-    <Compile Include="GroupMessageRouter.cs" />
+    <Compile Include="Group\RoundRobinSelectionStrategy.cs" />
+    <Compile Include="Group\GroupMessageRouter.cs" />
+    <Compile Include="Group\IGroupSelectionStrategy.cs" />
     <Compile Include="IEndpointManagement.cs" />
     <Compile Include="IMsmqEndpointAddress.cs" />
     <Compile Include="InboundMsmqTransport.cs" />

@@ -61,6 +61,7 @@ namespace MassTransit.Subscriptions.Coordinator
                     EndpointUri = message.EndpointUri,
                     MessageName = message.MessageName,
                     CorrelationId = message.CorrelationId,
+                    Group = _group
                 };
 
             if (_log.IsDebugEnabled)
@@ -106,7 +107,6 @@ namespace MassTransit.Subscriptions.Coordinator
                     PeerId = _peerId,
                     PeerUri = _peerUri,
                     Timestamp = _timestamp,
-                    Group = _group
                 }, context =>
                     {
                         SetSendContext(context);

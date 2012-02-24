@@ -17,6 +17,6 @@ namespace MassTransit.Transports.Msmq.Group
 
     public interface IGroupSelectionStrategy
     {
-        Peer Select(IGrouping<string, Peer> potentials);
+        PeerSubscription Select(IGrouping<string, PeerSubscription> potentials);
     }
 }

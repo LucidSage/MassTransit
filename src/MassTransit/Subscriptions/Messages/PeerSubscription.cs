@@ -26,5 +26,10 @@ namespace MassTransit.Subscriptions.Messages
 		/// The message number sent by this client
 		/// </summary>
 		long MessageNumber { get; }
+
+        /// <summary>
+        /// The group that this peer wants to participate in
+        /// </summary>
+        string Group { get; }
 	}
 }

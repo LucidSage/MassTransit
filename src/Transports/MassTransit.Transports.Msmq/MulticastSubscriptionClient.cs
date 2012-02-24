@@ -89,7 +89,6 @@ namespace MassTransit.Transports.Msmq
                     PeerId = _peerId,
                     PeerUri = _peerUri,
                     Timestamp = _producer.Timestamp,
-                    Group = _group
                 };
 
             clientEndpoint.Send(addPeer, sendContext =>
@@ -108,6 +107,7 @@ namespace MassTransit.Transports.Msmq
                             EndpointUri = x.EndpointUri,
                             MessageName = x.MessageName,
                             CorrelationId = x.CorrelationId,
+                            Group = _group
                         };
 
                     clientEndpoint.Send(add, sendContext =>

@@ -28,10 +28,10 @@ namespace MassTransit.Transports.Msmq.Group
 		IBusService,
         IDisposable,
         IPipelineSink<ISendContext>,
-        Consumes<AddPeer>.Context,
-        Consumes<RemovePeer>.Context
+        Consumes<AddPeerSubscription>.Context,
+        Consumes<RemovePeerSubscription>.Context
 	{
-        readonly IDictionary<Uri, Peer> _workers = new Dictionary<Uri, Peer>();
+        readonly IDictionary<Uri, PeerSubscription> _workers = new Dictionary<Uri, PeerSubscription>();
 
 		UnsubscribeAction _unsubscribeAction = () => false;
 		IServiceBus _bus;
@@ -51,13 +51,14 @@ namespace MassTransit.Transports.Msmq.Group
 		{
 			yield return ctx =>
             {
-                List<Peer> recipients;
+                List<PeerSubscription> recipients;
                 lock (_workers)
                 {
                     // Use ToList to force Linq to evaluate the expression while _workers is locked
                     recipients = _workers
                         .Values
-                        .GroupBy(wd => wd.Group)
+                        .Where( peer => peer.MessageName == context.MessageType )
+                        .GroupBy(peer => peer.Group)
                         .Select(workers => _selectionStrategy.Select(workers))
                         .ToList();
                 }
@@ -67,7 +68,7 @@ namespace MassTransit.Transports.Msmq.Group
 		}
 
         [UsedImplicitly]
-        void SendMessageToWorker<TMessage>(ISendContext context, Peer worker) where TMessage : class
+        void SendMessageToWorker<TMessage>(ISendContext context, PeerSubscription worker) where TMessage : class
         {
             if (worker == null)
             {
@@ -79,7 +80,7 @@ namespace MassTransit.Transports.Msmq.Group
             if (!context.TryGetContext<TMessage>(out msgContext))
                 throw new Exception("Failed to resolve context.");
             
-            IEndpoint endpoint = _bus.GetEndpoint(worker.PeerUri);
+            IEndpoint endpoint = _bus.GetEndpoint(worker.EndpointUri);
 
             endpoint.Send(msgContext.Message, sendContext =>
             {
@@ -105,6 +106,8 @@ namespace MassTransit.Transports.Msmq.Group
 			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
 			// to do this 'officially' in the future.
 			_defaultSink = ((OutboundMessagePipeline)bus.OutboundPipeline).ReplaceOutputSink(this);
+
+            _selectionStrategy.Configure(bus);
 		}
 		
 		public void Stop()
@@ -115,53 +118,26 @@ namespace MassTransit.Transports.Msmq.Group
 			_unsubscribeAction();
 		}
 
-        public void Consume(IConsumeContext<AddPeer> message)
+        public void Consume(IConsumeContext<AddPeerSubscription> message)
         {
+            // Ignore ourselves
+            if (message.SourceAddress == _bus.Endpoint.Address.Uri)
+                return;
+
             lock (_workers)
             {
                 _workers.Retrieve(message.SourceAddress, () => message.Message);
             }
         }
 
-        public void Consume(IConsumeContext<RemovePeer> message)
+        public void Consume(IConsumeContext<RemovePeerSubscription> message)
         {
             lock (_workers)
             {
                 _workers.Remove(message.SourceAddress);
             }
         }
-
-		/*
-		void Consume(GroupWorkerAvailable<TMessage> message)
-		{
-			GroupWorkerDetails worker;
-			lock (_workers)
-			{
-				worker = _workers.Retrieve(message.ControlUri, () =>
-				{
-					return new GroupWorkerDetails
-					{
-						ControlUri = message.ControlUri,
-						DataUri = message.DataUri,
-						InProgress = message.InProgress,
-						InProgressLimit = message.InProgressLimit,
-						Pending = message.Pending,
-						PendingLimit = message.PendingLimit,
-						LastUpdate = message.Updated,
-						Group = message.Group,
-					};
-				});
-			}
-
-			worker.UpdateInProgress(message.InProgress, message.InProgressLimit, message.Pending, message.PendingLimit,
-				message.Updated);
-
-			if (_log.IsDebugEnabled)
-				_log.DebugFormat("Worker {0}: {1} in progress, {2} pending", message.DataUri, message.InProgress, message.Pending);
-		}
-        */
-		//static readonly ILog _log = LogManager.GetLogger(typeof(Distributor<TMessage>));
-		
+        		
 		public void Dispose()
 		{
 		}

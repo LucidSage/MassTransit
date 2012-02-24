@@ -20,7 +20,7 @@ namespace MassTransit.Transports.Msmq.Group
     {
         Dictionary<string, int> _currentOrdinals = new Dictionary<string, int>();
 
-        public Peer Select(IGrouping<string,Peer> potentials)
+        public PeerSubscription Select(IGrouping<string, PeerSubscription> potentials)
         {
             int current = -1;
 

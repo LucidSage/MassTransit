@@ -20,6 +20,5 @@ namespace MassTransit.Subscriptions.Messages
 		public Guid PeerId { get; set; }
 		public Uri PeerUri { get; set; }
         public long Timestamp { get; set; }
-        public string Group { get; set; }
 	}
 }

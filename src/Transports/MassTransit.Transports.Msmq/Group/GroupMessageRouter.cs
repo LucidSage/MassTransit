@@ -106,8 +106,6 @@ namespace MassTransit.Transports.Msmq.Group
 			// the replacement of the existing MessageRouter sink. Hopefully the API add a way
 			// to do this 'officially' in the future.
 			_defaultSink = ((OutboundMessagePipeline)bus.OutboundPipeline).ReplaceOutputSink(this);
-
-            _selectionStrategy.Configure(bus);
 		}
 		
 		public void Stop()

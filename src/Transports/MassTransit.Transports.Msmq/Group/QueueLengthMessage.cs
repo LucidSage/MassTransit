@@ -12,12 +12,11 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.Transports.Msmq.Group
 {
-    using System.Linq;
-    using MassTransit.Subscriptions.Messages;
+    using System;
 
-    public interface IGroupSelectionStrategy
+    public class QueueLengthMessage
     {
-        void Configure(IGroupMessageRouter router);
-        PeerSubscription Select(IGrouping<string, PeerSubscription> potentials);
+        public Uri SourceUri;
+        public int Pending;
     }
 }

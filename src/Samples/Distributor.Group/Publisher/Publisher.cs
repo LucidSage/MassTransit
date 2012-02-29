@@ -5,6 +5,7 @@ using System.Text;
 using Messages;
 using MassTransit;
 using MassTransit.Distributor.Grouping;
+using MassTransit.Transports.Msmq.Group;
 
 namespace Publisher
 {
@@ -13,15 +14,18 @@ namespace Publisher
 		static void Main(string[] args)
 		{
 			using (var bus = ServiceBusFactory.New(sbc =>
-			{
-				sbc.UseMsmq();
-				sbc.VerifyMsmqConfiguration();
-				sbc.SetNetwork("mt_group_demo");
-				sbc.UseMulticastSubscriptionClient();
-				//sbc.UseGroupDistributorFor<YourMessage>();
+			                        {
+				                        sbc.UseMsmq();
+				                        sbc.VerifyMsmqConfiguration();
+				                        sbc.SetNetwork("mt_group_demo");
+                                        sbc.UseMulticastSubscriptionClient(config =>
+                                            {
+                                                config.SetGroupSelectionStrategy(new QueueLengthSelectionStrategy());
+                                            });
+				                        //sbc.UseGroupDistributorFor<YourMessage>();
 
-				sbc.ReceiveFrom("msmq://localhost/mt_group_events_pub");
-			}))
+				                        sbc.ReceiveFrom("msmq://localhost/mt_group_events_pub");
+			                        }))
 			{
 
 				ConsoleOut("Publisher Ready.");

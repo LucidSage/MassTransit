@@ -12,19 +12,18 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.Transports.Msmq.Group
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using log4net;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reactive.Subjects;
     using Magnum.Extensions;
     using Magnum.Reflection;
-	using MassTransit.Pipeline;
-	using MassTransit.Pipeline.Sinks;
+    using MassTransit.Pipeline;
     using MassTransit.Subscriptions.Messages;
     using MassTransit.Util;
-    using MassTransit.Transports.Msmq.Configuration;
 
 	class GroupMessageRouter :
+        IGroupMessageRouter,
 		IBusService,
         IDisposable,
         IPipelineSink<ISendContext>,
@@ -39,12 +38,24 @@ namespace MassTransit.Transports.Msmq.Group
         IControlBus _subscriptionBus;
         IGroupSelectionStrategy _selectionStrategy;
 
+        public IServiceBus Bus { get { return _bus; } }
+
+        public Subject<PeerSubscription> RemoteSubscriptionAdded { get; private set; }
+        public Subject<PeerSubscription> RemoteSubscriptionRemoved { get; private set; }
+        public Subject<PeerSubscription> LocalSubscriptionAdded { get; private set; }
+        public Subject<PeerSubscription> LocalSubscriptionRemoved { get; private set; }
+
         public GroupMessageRouter(
-            MulticastSubscriptionClientConfiguratorImpl configurator,
+            IControlBus subscriptionBus,
             IGroupSelectionStrategy selectionStrategy)
         {
-            _subscriptionBus = configurator.SubscriptionBus;
+            _subscriptionBus = subscriptionBus;
             _selectionStrategy = selectionStrategy;
+
+            RemoteSubscriptionAdded = new Subject<PeerSubscription>();
+            RemoteSubscriptionRemoved = new Subject<PeerSubscription>();
+            LocalSubscriptionAdded = new Subject<PeerSubscription>();
+            LocalSubscriptionRemoved = new Subject<PeerSubscription>();
 		}
 
 		public IEnumerable<Action<ISendContext>> Enumerate(ISendContext context)
@@ -58,8 +69,8 @@ namespace MassTransit.Transports.Msmq.Group
                     recipients = _workers
                         .Values
                         .Where( peer => peer.MessageName == context.MessageType )
-                        .GroupBy(peer => peer.Group)
-                        .Select(workers => _selectionStrategy.Select(workers))
+                        .GroupBy( peer => peer.Group )
+                        .Select( workers => _selectionStrategy.Select(workers) )
                         .ToList();
                 }
                 
@@ -102,6 +113,8 @@ namespace MassTransit.Transports.Msmq.Group
             _unsubscribeAction = _subscriptionBus.SubscribeInstance(this);
 			
 			_defaultSink = bus.OutboundPipeline.ReplaceOutputSink(this);
+
+            _selectionStrategy.Configure(this);
 		}
 		
 		public void Stop()
@@ -116,20 +129,34 @@ namespace MassTransit.Transports.Msmq.Group
         {
             // Ignore ourselves
             if (message.SourceAddress == _bus.Endpoint.Address.Uri)
+            {
+                LocalSubscriptionAdded.OnNext(message.Message);
                 return;
+            }
 
             lock (_workers)
             {
                 _workers.Retrieve(message.SourceAddress, () => message.Message);
             }
+
+            RemoteSubscriptionAdded.OnNext(message.Message);
         }
 
         public void Consume(IConsumeContext<RemovePeerSubscription> message)
         {
+            // Ignore ourselves
+            if (message.SourceAddress == _bus.Endpoint.Address.Uri)
+            {
+                LocalSubscriptionRemoved.OnNext(message.Message);
+                return;
+            }
+
             lock (_workers)
             {
                 _workers.Remove(message.SourceAddress);
             }
+
+            RemoteSubscriptionRemoved.OnNext(message.Message);
         }
         		
 		public void Dispose()

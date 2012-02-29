@@ -67,6 +67,12 @@
     <Reference Include="Magnum" Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
       <HintPath>..\..\..\lib\Magnum\net-4.0\Magnum.dll</HintPath>
     </Reference>
+    <Reference Include="Stact" Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
+      <HintPath>..\..\..\lib\Stact\net-3.5\Stact.dll</HintPath>
+    </Reference>
+    <Reference Include="Stact" Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
+      <HintPath>..\..\..\lib\Stact\net-4.0\Stact.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -75,6 +81,12 @@
     <Reference Include="System.Messaging" />
     <Reference Include="System.Net">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Reactive" Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
+      <HintPath>..\..\..\lib\Rx\Net35\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive" Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
+      <HintPath>..\..\..\lib\Rx\Net4\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Transactions" />
@@ -87,6 +99,9 @@
     <Compile Include="Configuration\MulticastSubscriptionClientConfigurator.cs" />
     <Compile Include="Configuration\MulticastSubscriptionClientConfiguratorImpl.cs" />
     <Compile Include="Configuration\MulticastSubscriptionClientExtensions.cs" />
+    <Compile Include="Group\IGroupMessageRouter.cs" />
+    <Compile Include="Group\QueueLengthMessage.cs" />
+    <Compile Include="Group\QueueLengthSelectionStrategy.cs" />
     <Compile Include="Group\RoundRobinSelectionStrategy.cs" />
     <Compile Include="Group\GroupMessageRouter.cs" />
     <Compile Include="Group\IGroupSelectionStrategy.cs" />

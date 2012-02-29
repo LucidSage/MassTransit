@@ -5,6 +5,7 @@ using System.Text;
 using MassTransit;
 using MassTransit.Distributor.Grouping;
 using Messages;
+using MassTransit.Transports.Msmq.Group;
 
 namespace SubscriberOne
 {
@@ -19,9 +20,9 @@ namespace SubscriberOne
 				sbc.SetNetwork("mt_group_demo");
                 sbc.UseMulticastSubscriptionClient(config =>
                     {
-                        config.SetGroup("one");
+                        config.SetGroup("demo");
+                        config.SetGroupSelectionStrategy(new QueueLengthSelectionStrategy());
                     });
-				//sbc.UseGroupWorker<YourMessage>("one");
 
 				sbc.ReceiveFrom("msmq://localhost/mt_group_events_sub_one");
 

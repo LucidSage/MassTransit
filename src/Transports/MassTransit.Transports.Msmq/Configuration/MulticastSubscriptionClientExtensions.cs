@@ -34,7 +34,7 @@ namespace MassTransit
 
 			configurator.AddSubscriptionObserver(clientConfigurator.Create);
 
-            configurator.AddService(BusServiceLayer.Presentation, () => new GroupMessageRouter(clientConfigurator, clientConfigurator.GroupSelectionStrategy));
+            configurator.AddService(BusServiceLayer.Presentation, () => new GroupMessageRouter(clientConfigurator.SubscriptionBus, clientConfigurator.GroupSelectionStrategy));
 		}
 	}
 }

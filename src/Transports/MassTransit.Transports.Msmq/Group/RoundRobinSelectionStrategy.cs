@@ -20,6 +20,10 @@ namespace MassTransit.Transports.Msmq.Group
     {
         Dictionary<string, int> _currentOrdinals = new Dictionary<string, int>();
 
+        public void Configure(IGroupMessageRouter router)
+        {
+        }
+
         public PeerSubscription Select(IGrouping<string, PeerSubscription> potentials)
         {
             int current = -1;

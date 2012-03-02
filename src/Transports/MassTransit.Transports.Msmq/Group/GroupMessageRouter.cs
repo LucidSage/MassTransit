@@ -37,8 +37,10 @@ namespace MassTransit.Transports.Msmq.Group
         IPipelineSink<ISendContext> _defaultSink;
         IControlBus _subscriptionBus;
         IGroupSelectionStrategy _selectionStrategy;
+        string _network;
 
         public IServiceBus Bus { get { return _bus; } }
+        public string Network { get { return _network; } }
 
         public Subject<PeerSubscription> RemoteSubscriptionAdded { get; private set; }
         public Subject<PeerSubscription> RemoteSubscriptionRemoved { get; private set; }
@@ -47,10 +49,12 @@ namespace MassTransit.Transports.Msmq.Group
 
         public GroupMessageRouter(
             IControlBus subscriptionBus,
-            IGroupSelectionStrategy selectionStrategy)
+            IGroupSelectionStrategy selectionStrategy,
+            string network)
         {
             _subscriptionBus = subscriptionBus;
             _selectionStrategy = selectionStrategy;
+            _network = network;
 
             RemoteSubscriptionAdded = new Subject<PeerSubscription>();
             RemoteSubscriptionRemoved = new Subject<PeerSubscription>();

@@ -28,13 +28,25 @@ namespace MassTransit
 		public static void UseMulticastSubscriptionClient(this ServiceBusConfigurator configurator,
 		                                                  Action<MulticastSubscriptionClientConfigurator> configureCallback)
 		{
+            string network = null;
+
 			var clientConfigurator = new MulticastSubscriptionClientConfiguratorImpl();
 
 			configureCallback(clientConfigurator);
 
-			configurator.AddSubscriptionObserver(clientConfigurator.Create);
+			configurator.AddSubscriptionObserver( (bus, router) => 
+                {
+                    network = router.Network;
 
-            configurator.AddService(BusServiceLayer.Presentation, () => new GroupMessageRouter(clientConfigurator.SubscriptionBus, clientConfigurator.GroupSelectionStrategy));
+                    return clientConfigurator.Create(bus, router);
+                });
+
+            configurator.AddService(BusServiceLayer.Presentation,
+                () => new GroupMessageRouter(
+                    clientConfigurator.SubscriptionBus,
+                    clientConfigurator.GroupSelectionStrategy,
+                    network));
+
 		}
 	}
 }

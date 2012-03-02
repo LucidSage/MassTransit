@@ -39,7 +39,7 @@ namespace MassTransit.Transports.Msmq.Group
             _queue_length_bus = ServiceBusFactory.New(sbc =>
                     {
                         sbc.UseMsmq();
-                        sbc.SetNetwork("mt_group_queue_length");
+                        sbc.SetNetwork(router.Network);
                         sbc.UseMulticastSubscriptionClient();
                         sbc.ReceiveFrom(router.Bus.Endpoint.Address.Uri.AppendToPath("_queue_length"));
                     });

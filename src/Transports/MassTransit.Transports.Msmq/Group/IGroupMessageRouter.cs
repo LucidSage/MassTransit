@@ -19,6 +19,7 @@ namespace MassTransit.Transports.Msmq.Group
     public interface IGroupMessageRouter
     {
         IServiceBus Bus { get; }
+        string Network { get; }
         Subject<PeerSubscription> RemoteSubscriptionAdded { get; }
         Subject<PeerSubscription> RemoteSubscriptionRemoved { get; }
         Subject<PeerSubscription> LocalSubscriptionAdded { get; }
